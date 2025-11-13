@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRNotes - Projekt Roadmap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="roadmap.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <img src="data/logo/MRNotes_Logo_BaluerHintergrund.png" alt="MRNotes Logo" class="logo-image">
+                </div>
+                <span class="logo-text">MRNotes</span>
+            </a>
+            <span class="page-title">Roadmap</span>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-value">4-6</span>
+            <span class="stat-label">Wochen bis MVP</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Entwicklungsphasen</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">20-26</span>
+            <span class="stat-label">Wochen Total</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">∞</span>
+            <span class="stat-label">Möglichkeiten</span>
+        </div>
+    </div>
+
+    <div class="tech-stack">
+        <h3><i class="fas fa-tools"></i> Empfohlener Tech-Stack</h3>
+        <div class="tech-tags">
+            <span class="tech-tag">Next.js 14+</span>
+            <span class="tech-tag">TipTap Editor</span>
+            <span class="tech-tag">PostgreSQL</span>
+            <span class="tech-tag">Prisma ORM</span>
+            <span class="tech-tag">shadcn/ui</span>
+            <span class="tech-tag">Tailwind CSS</span>
+            <span class="tech-tag">Node.js/Express</span>
+            <span class="tech-tag">Redis</span>
+            <span class="tech-tag">Docker</span>
+        </div>
+    </div>
+
+    <div class="board-container">
+        <!-- Phase 1: MVP -->
+        <div class="board-column phase-1">
+            <div class="column-header">
+                <h2>
+                    <i class="fas fa-cube"></i>
+                    <span>Phase 1: MVP</span>
+                </h2>
+                <span class="column-badge">4-6 Wochen</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Projekt-Setup & Grundgerüst</div>
+                <div class="card-description">
+                    Next.js + Backend-Setup, Datenbank-Schema, Authentifizierung, Basis-UI-Layout mit Sidebar
+                </div>
+                <div class="week-indicator"><i class="fas fa-calendar-alt"></i> Woche 1-2</div>
+                <div class="card-meta">
+                    <span class="card-tag priority-high">Kritisch</span>
+                    <span class="card-tag">Setup</span>
+                    <span class="card-tag">Auth</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task1" onchange="updateProgress()">
+                    <label for="task1">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Kernfunktionen implementieren</div>
+                <div class="card-description">
+                    CRUD für Notizbücher, Abschnitte & Seiten. TipTap-Editor integrieren. Hierarchie-Navigation mit Basis-Formatierungen.
+                </div>
+                <div class="week-indicator"><i class="fas fa-calendar-alt"></i> Woche 3-4</div>
+                <div class="card-meta">
+                    <span class="card-tag priority-high">Kritisch</span>
+                    <span class="card-tag">Editor</span>
+                    <span class="card-tag">CRUD</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task2" onchange="updateProgress()">
+                    <label for="task2">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Erweiterte MVP-Features</div>
+                <div class="card-description">
+                    Bilder-Upload mit Drag & Drop, Volltextsuche, Tags-System, Drag & Drop für Reorganisation
+                </div>
+                <div class="week-indicator"><i class="fas fa-calendar-alt"></i> Woche 5-6</div>
+                <div class="card-meta">
+                    <span class="card-tag priority-high">Kritisch</span>
+                    <span class="card-tag">Upload</span>
+                    <span class="card-tag">Suche</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task3" onchange="updateProgress()">
+                    <label for="task3">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card-progress">
+                <span>Fortschritt:</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase1-progress" style="width: 0%"></div>
+                </div>
+                <span id="phase1-percent">0%</span>
+            </div>
+        </div>
+
+        <!-- Phase 2: Erweiterte Features -->
+        <div class="board-column phase-2">
+            <div class="column-header">
+                <h2>
+                    <i class="fas fa-bolt"></i>
+                    <span>Phase 2: Features</span>
+                </h2>
+                <span class="column-badge">4-6 Wochen</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Dateianhänge & Rich Media</div>
+                <div class="card-description">
+                    Dateianhänge-System, Tabellen-Editor, interaktive Checklisten mit Completion-Tracking
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">Files</span>
+                    <span class="card-tag">Tables</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task4" onchange="updateProgress()">
+                    <label for="task4">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Export & Import</div>
+                <div class="card-description">
+                    Export zu PDF, Markdown, HTML. Import von anderen Formaten (OneNote, Evernote, Markdown)
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">Export</span>
+                    <span class="card-tag">Import</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task5" onchange="updateProgress()">
+                    <label for="task5">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Erweiterte Suche & UX</div>
+                <div class="card-description">
+                    Suche mit Filtern (Notebook, Tags, Datum), Keyboard-Shortcuts, Favoriten-System
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">UX</span>
+                    <span class="card-tag">Shortcuts</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task6" onchange="updateProgress()">
+                    <label for="task6">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card-progress">
+                <span>Fortschritt:</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase2-progress" style="width: 0%"></div>
+                </div>
+                <span id="phase2-percent">0%</span>
+            </div>
+        </div>
+
+        <!-- Phase 3: Kollaboration -->
+        <div class="board-column phase-3">
+            <div class="column-header">
+                <h2>
+                    <i class="fas fa-users"></i>
+                    <span>Phase 3: Kollaboration</span>
+                </h2>
+                <span class="column-badge">6-8 Wochen</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Sharing & Permissions</div>
+                <div class="card-description">
+                    Sharing-Mechanismus für Notizbücher, Berechtigungsverwaltung (Read, Write, Admin)
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">Sharing</span>
+                    <span class="card-tag">Security</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task7" onchange="updateProgress()">
+                    <label for="task7">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Echtzeit-Synchronisation</div>
+                <div class="card-description">
+                    WebSocket-Integration, Echtzeit-Editing mit Yjs, Cursor-Sharing, Presence-Anzeige
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-low">Optional</span>
+                    <span class="card-tag">Realtime</span>
+                    <span class="card-tag">WebSocket</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task8" onchange="updateProgress()">
+                    <label for="task8">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Kommentare & Activity Log</div>
+                <div class="card-description">
+                    Kommentar-System für Seiten, Activity-Log für Änderungen, Benachrichtigungen
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-low">Optional</span>
+                    <span class="card-tag">Comments</span>
+                    <span class="card-tag">Notifications</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task9" onchange="updateProgress()">
+                    <label for="task9">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card-progress">
+                <span>Fortschritt:</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase3-progress" style="width: 0%"></div>
+                </div>
+                <span id="phase3-percent">0%</span>
+            </div>
+        </div>
+
+        <!-- Phase 4: Polish & Mobile -->
+        <div class="board-column phase-4">
+            <div class="column-header">
+                <h2>
+                    <i class="fas fa-magic"></i>
+                    <span>Phase 4: Polish</span>
+                </h2>
+                <span class="column-badge">4-6 Wochen</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Responsive & Mobile</div>
+                <div class="card-description">
+                    Responsive Design optimieren, PWA-Funktionalität, Mobile-optimierte Navigation
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">PWA</span>
+                    <span class="card-tag">Mobile</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task10" onchange="updateProgress()">
+                    <label for="task10">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Offline-Support</div>
+                <div class="card-description">
+                    Service Worker für Caching, IndexedDB für lokale Daten, Sync-Queue für Offline-Änderungen
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-low">Optional</span>
+                    <span class="card-tag">Offline</span>
+                    <span class="card-tag">PWA</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task11" onchange="updateProgress()">
+                    <label for="task11">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Themes & Accessibility</div>
+                <div class="card-description">
+                    Dark Mode, Custom-Themes, WCAG-Compliance, Keyboard-Navigation-Verbesserungen
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-medium">Wichtig</span>
+                    <span class="card-tag">A11y</span>
+                    <span class="card-tag">Themes</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task12" onchange="updateProgress()">
+                    <label for="task12">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-title">Performance-Optimierung</div>
+                <div class="card-description">
+                    Code-Splitting, Lazy Loading, Caching-Strategien, Database-Query-Optimization
+                </div>
+                <div class="card-meta">
+                    <span class="card-tag priority-high">Kritisch</span>
+                    <span class="card-tag">Performance</span>
+                    <span class="card-tag">Optimization</span>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="task13" onchange="updateProgress()">
+                    <label for="task13">Als erledigt markieren</label>
+                </div>
+            </div>
+
+            <div class="card-progress">
+                <span>Fortschritt:</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase4-progress" style="width: 0%"></div>
+                </div>
+                <span id="phase4-percent">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="roadmap.js"></script>
+</body>
+</html>

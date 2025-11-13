@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas192" width="192" height="192" style="display:none;"></canvas>
+    <canvas id="canvas512" width="512" height="512" style="display:none;"></canvas>
+    <script>
+        // Generate 192x192 icon
+        const canvas192 = document.getElementById('canvas192');
+        const ctx192 = canvas192.getContext('2d');
+        
+        // Background
+        ctx192.fillStyle = '#4f46e5';
+        ctx192.beginPath();
+        ctx192.roundRect(0, 0, 192, 192, 20);
+        ctx192.fill();
+        
+        // Notebook outline
+        ctx192.strokeStyle = '#fff';
+        ctx192.lineWidth = 8;
+        ctx192.strokeRect(48, 48, 96, 96);
+        
+        // Lines
+        ctx192.strokeStyle = '#fff';
+        ctx192.lineWidth = 6;
+        ctx192.lineCap = 'round';
+        
+        ctx192.beginPath();
+        ctx192.moveTo(72, 72);
+        ctx192.lineTo(120, 72);
+        ctx192.stroke();
+        
+        ctx192.beginPath();
+        ctx192.moveTo(72, 96);
+        ctx192.lineTo(120, 96);
+        ctx192.stroke();
+        
+        ctx192.beginPath();
+        ctx192.moveTo(72, 120);
+        ctx192.lineTo(104, 120);
+        ctx192.stroke();
+        
+        // Download 192x192
+        canvas192.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'icon-192.png';
+            a.click();
+        });
+        
+        // Generate 512x512 icon
+        const canvas512 = document.getElementById('canvas512');
+        const ctx512 = canvas512.getContext('2d');
+        
+        // Background
+        ctx512.fillStyle = '#4f46e5';
+        ctx512.beginPath();
+        ctx512.roundRect(0, 0, 512, 512, 60);
+        ctx512.fill();
+        
+        // Notebook outline
+        ctx512.strokeStyle = '#fff';
+        ctx512.lineWidth = 20;
+        ctx512.strokeRect(128, 128, 256, 256);
+        
+        // Lines
+        ctx512.strokeStyle = '#fff';
+        ctx512.lineWidth = 16;
+        ctx512.lineCap = 'round';
+        
+        ctx512.beginPath();
+        ctx512.moveTo(192, 192);
+        ctx512.lineTo(320, 192);
+        ctx512.stroke();
+        
+        ctx512.beginPath();
+        ctx512.moveTo(192, 256);
+        ctx512.lineTo(320, 256);
+        ctx512.stroke();
+        
+        ctx512.beginPath();
+        ctx512.moveTo(192, 320);
+        ctx512.lineTo(288, 320);
+        ctx512.stroke();
+        
+        // Download 512x512
+        canvas512.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'icon-512.png';
+            a.click();
+        });
+        
+        document.body.innerHTML = '<h1>Icons generated! Check your downloads folder.</h1>';
+    </script>
+</body>
+</html>

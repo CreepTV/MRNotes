@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRNotes - OneNote Web-Alternative</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <img src="data/logo/MRNotes_Logo_BaluerHintergrund.png" alt="MRNotes Logo" class="logo-image">
+                </div>
+                <span class="logo-text">MRNotes</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="roadmap.html" class="nav-link">Roadmap</a>
+            <a href="#about" class="nav-link">Über uns</a>
+            <button class="cta-button">
+                <i class="fas fa-rocket"></i>
+                Jetzt starten
+            </button>
+        </nav>
+    </div>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Die moderne OneNote-Alternative</h1>
+                    <p class="hero-subtitle">
+                        Erstelle, organisiere und teile deine Notizen mit der nächsten Generation von Notiz-Apps. 
+                        Vollständig web-basiert, kollaborativ und Open Source.
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            Demo ansehen
+                        </button>
+                        <a href="roadmap.html" class="btn btn-secondary">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Entwicklungsplan
+                        </a>
+                    </div>
+                    <div class="hero-meta">
+                        <span class="brand-badge">
+                            Ein Produkt von <strong>MRAXO</strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="app-preview">
+                        <div class="preview-header">
+                            <div class="preview-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                            <span class="preview-title">MRNotes</span>
+                        </div>
+                        <div class="preview-content">
+                            <div class="preview-sidebar">
+                                <div class="sidebar-item active">
+                                    <i class="fas fa-book"></i>
+                                    <span>Mein Notizbuch</span>
+                                </div>
+                                <div class="sidebar-item">
+                                    <i class="fas fa-folder"></i>
+                                    <span>Projekte</span>
+                                </div>
+                                <div class="sidebar-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>Favoriten</span>
+                                </div>
+                            </div>
+                            <div class="preview-main">
+                                <div class="preview-toolbar">
+                                    <div class="toolbar-group">
+                                        <i class="fas fa-bold"></i>
+                                        <i class="fas fa-italic"></i>
+                                        <i class="fas fa-underline"></i>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <i class="fas fa-list-ul"></i>
+                                        <i class="fas fa-list-ol"></i>
+                                    </div>
+                                </div>
+                                <div class="preview-editor">
+                                    <h3>Willkommen bei MRNotes</h3>
+                                    <p>Eine moderne, kollaborative Notiz-App für Teams und Einzelpersonen.</p>
+                                    <div class="preview-features">
+                                        <div class="feature-item">✓ Rich-Text-Editor</div>
+                                        <div class="feature-item">✓ Echtzeit-Kollaboration</div>
+                                        <div class="feature-item">✓ Hierarchische Organisation</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap CTA Section -->
+        <section class="roadmap-cta">
+            <div class="cta-content">
+                <div class="cta-text">
+                    <h2><i class="fas fa-map-marked-alt"></i> Entwicklungsroadmap</h2>
+                    <p>Verfolge unseren Fortschritt und sieh, was als nächstes kommt. Von MVP bis zur vollständigen Plattform.</p>
+                    <div class="roadmap-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">4</span>
+                            <span class="stat-label">Phasen</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">4-6</span>
+                            <span class="stat-label">Wochen bis MVP</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">13</span>
+                            <span class="stat-label">Meilensteine</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cta-action">
+                    <a href="roadmap.html" class="roadmap-button">
+                        <div class="button-content">
+                            <i class="fas fa-route"></i>
+                            <span class="button-text">
+                                <strong>Roadmap ansehen</strong>
+                                <small>Interaktive Projektplanung</small>
+                            </span>
+                        </div>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="section-header">
+                <h2>Warum MRNotes?</h2>
+                <p>Die Features, die deine Produktivität steigern</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3>Rich-Text-Editor</h3>
+                    <p>Moderner WYSIWYG-Editor mit TipTap. Formatierung, Tabellen, Listen und mehr.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3>Hierarchische Struktur</h3>
+                    <p>Organisiere deine Notizen in Notizbüchern, Abschnitten und Seiten - wie bei OneNote.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Echtzeit-Kollaboration</h3>
+                    <p>Arbeite gemeinsam mit deinem Team. Sieh Änderungen in Echtzeit und kommentiere.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Volltextsuche</h3>
+                    <p>Finde schnell alle deine Inhalte mit leistungsstarker Suche und Filteroptionen.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Cloud & Self-Hosted</h3>
+                    <p>Nutze unseren Cloud-Service oder hoste MRNotes selbst auf deinen Servern.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Open Source</h3>
+                    <p>Transparente Entwicklung, anpassbar und erweiterbar nach deinen Bedürfnissen.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Über MRNotes</h2>
+                    <p>MRNotes ist eine moderne, web-basierte Alternative zu Microsoft OneNote. Entwickelt mit den neuesten Technologien bietet es eine nahtlose, kollaborative Notiz-Erfahrung für moderne Teams und Einzelpersonen.</p>
+                    
+                    <div class="tech-highlight">
+                        <h3><i class="fas fa-cog"></i> Technologie-Stack</h3>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Next.js</span>
+                            <span class="tech-tag">TypeScript</span>
+                            <span class="tech-tag">PostgreSQL</span>
+                            <span class="tech-tag">TipTap</span>
+                            <span class="tech-tag">Prisma</span>
+                        </div>
+                    </div>
+
+                    <div class="company-info">
+                        <p><strong>MRAXO</strong> entwickelt innovative Software-Lösungen für moderne Arbeitsplätze. MRNotes ist unser Beitrag zu besserer digitaler Zusammenarbeit.</p>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <i class="fas fa-rocket"></i>
+                            <h3>In Entwicklung</h3>
+                            <p>MVP in 4-6 Wochen</p>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-github"></i>
+                            <h3>Open Source</h3>
+                            <p>Vollständig transparent</p>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Sicher & Privat</h3>
+                            <p>Deine Daten gehören dir</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <span class="logo-text">MRNotes</span>
+                    </div>
+                    <p>Die moderne OneNote-Alternative</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Produkt</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="roadmap.html">Roadmap</a></li>
+                    <li><a href="#pricing">Preise</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Unternehmen</h4>
+                <ul>
+                    <li><a href="#about">Über uns</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                    <li><a href="#careers">Karriere</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>MRAXO</h4>
+                <p>Innovative Software-Lösungen für moderne Arbeitsplätze.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 MRAXO. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>

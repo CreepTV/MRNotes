@@ -5,7 +5,7 @@ import { db } from '../../lib/db/database';
 import { useAppStore } from '../../lib/store/appStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faBook, 
+  faBook,
   faPlus, 
   faStar, 
   faMoon, 
@@ -72,7 +72,11 @@ export default function Sidebar() {
       {/* Header */}
       <div className="sidebar__header">
         <div className="sidebar__logo">
-          <FontAwesomeIcon icon={faBook} className="sidebar__logo-icon" />
+          <img 
+            src={theme === 'dark' ? '/data/logo/MRNotes_Logo_Transparent.png' : '/data/logo/MRNotes_Logo_Blau_Transparent.png'} 
+            alt="MRNotes Logo" 
+            className="sidebar__logo-img" 
+          />
           {sidebarOpen && <span className="sidebar__logo-text">MRNotes</span>}
         </div>
         <button 

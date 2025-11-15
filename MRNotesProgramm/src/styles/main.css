@@ -18,6 +18,7 @@
   --gray-500: #6b7280;
   --gray-700: #374151;
   --gray-900: #111827;
+  --mrnotes-gray: #1E293B;
   
   --white: #ffffff;
   --black: #000000;
@@ -157,10 +158,17 @@ body {
 .sidebar__logo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 4px;
   font-weight: 600;
   font-size: var(--font-lg);
   color: var(--primary);
+}
+
+.sidebar__logo-img {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .sidebar__logo svg {
@@ -169,6 +177,9 @@ body {
 }
 
 .sidebar__logo-text {
+  font-size: 1.1em;
+  color: var(--mrnotes-gray);
+  font-weight: 800;
   white-space: nowrap;
   transition: opacity 0.2s ease;
 }
@@ -434,6 +445,8 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  position: relative;
+  z-index: 100;
 }
 
 .header__content {
@@ -2051,6 +2064,10 @@ body:has(.sidebar--closed) .rich-toolbar {
 
 [data-theme="dark"] .sidebar__header {
   border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .sidebar__logo-text {
+  color: #3072F1;
 }
 
 [data-theme="dark"] .sidebar__toggle:hover {

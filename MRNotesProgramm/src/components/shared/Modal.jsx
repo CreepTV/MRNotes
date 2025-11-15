@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faExclamationTriangle, faInfoCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -65,7 +66,7 @@ export default function Modal({
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={handleBackdropClick}>
       <div 
         ref={modalRef}
@@ -102,6 +103,7 @@ export default function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

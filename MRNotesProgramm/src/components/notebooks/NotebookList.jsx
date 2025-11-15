@@ -4,61 +4,65 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db/database';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook, faPlus, faTrash, faEdit, faEllipsisV, faPalette } from '@fortawesome/free-solid-svg-icons';
+import InputModal from '../shared/InputModal';
+import ConfirmModal from '../shared/ConfirmModal';
 
 export default function NotebookList() {
   const navigate = useNavigate();
   const [showContextMenu, setShowContextMenu] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(null);
+  
   const notebooks = useLiveQuery(() => 
     db.notebooks.filter(notebook => !notebook.deletedAt).toArray()
   ) || [];
 
   const colors = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#be185d'];
 
-  const handleCreate = async () => {
-    const title = prompt('Notebook Name:');
-    if (!title) return;
+  const handleCreate = async (title) => {
+    if (title) {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const id = await db.notebooks.add({
+        title,
+        description: '',
+        color: randomColor,
+        icon: 'book',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null
+      });
 
-    const id = await db.notebooks.add({
-      title,
-      description: '',
-      color: randomColor,
-      icon: 'book',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null
-    });
-
-    navigate(`/notebooks/${id}`);
-  };
-
-  const handleDelete = async (e, id) => {
-    e.stopPropagation();
-    if (!confirm('Delete this notebook and all its contents?')) return;
-
-    // Soft delete
-    await db.notebooks.update(id, { deletedAt: new Date() });
-    
-    // Also delete associated sections and pages
-    const sections = await db.sections.where('notebookId').equals(id).toArray();
-    for (const section of sections) {
-      await db.pages.where('sectionId').equals(section.id).delete();
+      navigate(`/notebooks/${id}`);
     }
-    await db.sections.where('notebookId').equals(id).delete();
-    setShowContextMenu(null);
   };
 
-  const handleEdit = async (e, notebook) => {
-    e.stopPropagation();
-    const title = prompt('Notebook Name:', notebook.title);
-    if (!title) return;
+  const handleDelete = async () => {
+    if (showDeleteModal) {
+      // Soft delete
+      await db.notebooks.update(showDeleteModal.id, { deletedAt: new Date() });
+      
+      // Also delete associated sections and pages
+      const sections = await db.sections.where('notebookId').equals(showDeleteModal.id).toArray();
+      for (const section of sections) {
+        await db.pages.where('sectionId').equals(section.id).delete();
+      }
+      await db.sections.where('notebookId').equals(showDeleteModal.id).delete();
+      setShowContextMenu(null);
+      setShowDeleteModal(null);
+    }
+  };
 
-    await db.notebooks.update(notebook.id, {
-      title,
-      updatedAt: new Date()
-    });
-    setShowContextMenu(null);
+  const handleEdit = async (title) => {
+    if (showEditModal && title) {
+      await db.notebooks.update(showEditModal.id, {
+        title,
+        updatedAt: new Date()
+      });
+      setShowContextMenu(null);
+      setShowEditModal(null);
+    }
   };
 
   const handleChangeColor = async (e, notebook) => {
@@ -75,7 +79,7 @@ export default function NotebookList() {
     <div className="notebook-list-container">
       <div className="notebook-list-header">
         <h1><FontAwesomeIcon icon={faBook} /> My Notebooks</h1>
-        <button className="btn btn--primary" onClick={handleCreate}>
+        <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
           <FontAwesomeIcon icon={faPlus} />
           New Notebook
         </button>
@@ -90,7 +94,7 @@ export default function NotebookList() {
           <div className="notebook__empty-hint">
             Create your first notebook to get started
           </div>
-          <button className="btn btn--primary" onClick={handleCreate}>
+          <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
             <FontAwesomeIcon icon={faPlus} />
             Create Notebook
           </button>
@@ -120,13 +124,21 @@ export default function NotebookList() {
                 
                 {showContextMenu === notebook.id && (
                   <div className="context-menu" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => handleEdit(e, notebook)}>
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEditModal({ id: notebook.id, title: notebook.title });
+                      setShowContextMenu(null);
+                    }}>
                       <FontAwesomeIcon icon={faEdit} /> Rename
                     </button>
                     <button onClick={(e) => handleChangeColor(e, notebook)}>
                       <FontAwesomeIcon icon={faPalette} /> Change Color
                     </button>
-                    <button onClick={(e) => handleDelete(e, notebook.id)} className="danger">
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDeleteModal({ id: notebook.id, title: notebook.title });
+                      setShowContextMenu(null);
+                    }} className="danger">
                       <FontAwesomeIcon icon={faTrash} /> Delete
                     </button>
                   </div>
@@ -146,7 +158,7 @@ export default function NotebookList() {
             </div>
           ))}
 
-          <div className="notebook__card notebook__card--add" onClick={handleCreate}>
+          <div className="notebook__card notebook__card--add" onClick={() => setShowCreateModal(true)}>
             <div className="notebook__card-add-content">
               <FontAwesomeIcon icon={faPlus} size="3x" />
               <span>Create New Notebook</span>
@@ -154,6 +166,40 @@ export default function NotebookList() {
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <InputModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreate}
+        title="Neues Notizbuch"
+        label="Notizbuch Name"
+        placeholder="Mein Notizbuch"
+        submitText="Erstellen"
+        cancelText="Abbrechen"
+      />
+
+      <InputModal
+        isOpen={!!showEditModal}
+        onClose={() => setShowEditModal(null)}
+        onSubmit={handleEdit}
+        title="Notizbuch umbenennen"
+        label="Notizbuch Name"
+        defaultValue={showEditModal?.title || ''}
+        submitText="Speichern"
+        cancelText="Abbrechen"
+      />
+
+      <ConfirmModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        onConfirm={handleDelete}
+        title="Notizbuch löschen?"
+        message={`Möchtest du das Notizbuch "${showDeleteModal?.title}" wirklich löschen? Alle enthaltenen Sections und Seiten werden ebenfalls gelöscht.`}
+        confirmText="Löschen"
+        cancelText="Abbrechen"
+        type="danger"
+      />
     </div>
   );
 }

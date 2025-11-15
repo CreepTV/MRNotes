@@ -3,52 +3,57 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../../lib/db/database';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt, faPlus, faStar, faTrash, faEdit, faEllipsisV, faClock } from '@fortawesome/free-solid-svg-icons';
+import InputModal from '../shared/InputModal';
+import ConfirmModal from '../shared/ConfirmModal';
+import AlertModal from '../shared/AlertModal';
 
 export default function PageList({ sectionId, pages }) {
   const navigate = useNavigate();
   const [showContextMenu, setShowContextMenu] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showAlertModal, setShowAlertModal] = useState(false);
 
-  const handleCreate = async () => {
+  const handleCreate = async (title) => {
     if (!sectionId) {
-      alert('Please select a section first');
+      setShowAlertModal(true);
       return;
     }
 
-    const title = prompt('Page Name:');
-    if (!title) return;
+    if (title) {
+      const id = await db.pages.add({
+        sectionId,
+        parentPageId: null,
+        title,
+        content: { type: 'doc', content: [] },
+        orderIndex: pages.length,
+        isFavorite: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-    const id = await db.pages.add({
-      sectionId,
-      parentPageId: null,
-      title,
-      content: { type: 'doc', content: [] },
-      orderIndex: pages.length,
-      isFavorite: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-
-    navigate(`/pages/${id}`);
+      navigate(`/pages/${id}`);
+    }
   };
 
-  const handleEdit = async (e, page) => {
-    e.stopPropagation();
-    const title = prompt('Page Name:', page.title);
-    if (!title) return;
-
-    await db.pages.update(page.id, {
-      title,
-      updatedAt: new Date()
-    });
-    setShowContextMenu(null);
+  const handleEdit = async (title) => {
+    if (showEditModal && title) {
+      await db.pages.update(showEditModal.id, {
+        title,
+        updatedAt: new Date()
+      });
+      setShowContextMenu(null);
+      setShowEditModal(null);
+    }
   };
 
-  const handleDelete = async (e, id) => {
-    e.stopPropagation();
-    if (!confirm('Delete this page?')) return;
-
-    await db.pages.delete(id);
-    setShowContextMenu(null);
+  const handleDelete = async () => {
+    if (showDeleteModal) {
+      await db.pages.delete(showDeleteModal.id);
+      setShowContextMenu(null);
+      setShowDeleteModal(null);
+    }
   };
 
   const toggleFavorite = async (e, page) => {
@@ -71,7 +76,7 @@ export default function PageList({ sectionId, pages }) {
     <div className="page-list">
       <div className="page-list__header">
         <h2><FontAwesomeIcon icon={faFileAlt} /> Pages</h2>
-        <button className="btn btn--primary btn--sm" onClick={handleCreate}>
+        <button className="btn btn--primary btn--sm" onClick={() => setShowCreateModal(true)}>
           <FontAwesomeIcon icon={faPlus} />
           New Page
         </button>
@@ -84,7 +89,7 @@ export default function PageList({ sectionId, pages }) {
               <FontAwesomeIcon icon={faFileAlt} size="4x" />
             </div>
             <div className="page__empty-text">No pages yet</div>
-            <button className="btn btn--primary" onClick={handleCreate}>
+            <button className="btn btn--primary" onClick={() => setShowCreateModal(true)}>
               <FontAwesomeIcon icon={faPlus} />
               Create Page
             </button>
@@ -128,10 +133,18 @@ export default function PageList({ sectionId, pages }) {
                 
                 {showContextMenu === page.id && (
                   <div className="context-menu" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={(e) => handleEdit(e, page)}>
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEditModal({ id: page.id, title: page.title });
+                      setShowContextMenu(null);
+                    }}>
                       <FontAwesomeIcon icon={faEdit} /> Rename
                     </button>
-                    <button onClick={(e) => handleDelete(e, page.id)} className="danger">
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDeleteModal({ id: page.id, title: page.title });
+                      setShowContextMenu(null);
+                    }} className="danger">
                       <FontAwesomeIcon icon={faTrash} /> Delete
                     </button>
                   </div>
@@ -141,6 +154,48 @@ export default function PageList({ sectionId, pages }) {
           ))}
         </div>
       )}
+
+      {/* Modals */}
+      <InputModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreate}
+        title="Neue Seite"
+        label="Seiten Name"
+        placeholder="Meine Seite"
+        submitText="Erstellen"
+        cancelText="Abbrechen"
+      />
+
+      <InputModal
+        isOpen={!!showEditModal}
+        onClose={() => setShowEditModal(null)}
+        onSubmit={handleEdit}
+        title="Seite umbenennen"
+        label="Seiten Name"
+        defaultValue={showEditModal?.title || ''}
+        submitText="Speichern"
+        cancelText="Abbrechen"
+      />
+
+      <ConfirmModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        onConfirm={handleDelete}
+        title="Seite löschen?"
+        message={`Möchtest du die Seite "${showDeleteModal?.title}" wirklich löschen?`}
+        confirmText="Löschen"
+        cancelText="Abbrechen"
+        type="danger"
+      />
+
+      <AlertModal
+        isOpen={showAlertModal}
+        onClose={() => setShowAlertModal(false)}
+        title="Keine Section ausgewählt"
+        message="Bitte wähle zuerst eine Section aus, um eine Seite zu erstellen."
+        type="warning"
+      />
     </div>
   );
 }

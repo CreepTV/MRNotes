@@ -17,12 +17,16 @@ import {
   faHome,
   faBars
 } from '@fortawesome/free-solid-svg-icons';
+import InputModal from './InputModal';
+import ConfirmModal from './ConfirmModal';
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const { notebookId } = useParams();
   const { sidebarOpen, setSidebarOpen, theme, toggleTheme } = useAppStore();
   const [showMenu, setShowMenu] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(null);
 
   const notebooks = useLiveQuery(() => 
     db.notebooks.filter(notebook => !notebook.deletedAt).toArray(), 
@@ -36,8 +40,7 @@ export default function Sidebar() {
 
   const currentNotebookId = notebookId ? parseInt(notebookId) : null;
 
-  const handleCreateNotebook = async () => {
-    const title = prompt('Notebook Name:');
+  const handleCreateNotebook = async (title) => {
     if (title) {
       const colors = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#be185d'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
@@ -53,14 +56,14 @@ export default function Sidebar() {
     }
   };
 
-  const handleDeleteNotebook = async (id, e) => {
-    e.stopPropagation();
-    if (confirm('Notebook löschen?')) {
-      await db.notebooks.update(id, { deletedAt: new Date() });
+  const handleDeleteNotebook = async () => {
+    if (showDeleteModal) {
+      await db.notebooks.update(showDeleteModal.id, { deletedAt: new Date() });
       setShowMenu(null);
-      if (currentNotebookId === id) {
+      if (currentNotebookId === showDeleteModal.id) {
         navigate('/notebooks');
       }
+      setShowDeleteModal(null);
     }
   };
 
@@ -85,7 +88,7 @@ export default function Sidebar() {
       <div className="sidebar__actions">
         <button 
           className="btn btn--primary btn--block btn--compact"
-          onClick={handleCreateNotebook}
+          onClick={() => setShowCreateModal(true)}
           title="Neues Notizbuch"
         >
           <FontAwesomeIcon icon={faPlus} />
@@ -160,7 +163,11 @@ export default function Sidebar() {
                     <div className="sidebar__menu-dropdown">
                       <button
                         className="sidebar__menu-item sidebar__menu-item--danger"
-                        onClick={(e) => handleDeleteNotebook(notebook.id, e)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDeleteModal({ id: notebook.id, title: notebook.title });
+                          setShowMenu(null);
+                        }}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                         <span>Löschen</span>
@@ -185,6 +192,29 @@ export default function Sidebar() {
           {sidebarOpen && <span>{theme === 'dark' ? 'Hell' : 'Dunkel'}</span>}
         </button>
       </div>
+
+      {/* Modals */}
+      <InputModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateNotebook}
+        title="Neues Notizbuch"
+        label="Notizbuch Name"
+        placeholder="Mein Notizbuch"
+        submitText="Erstellen"
+        cancelText="Abbrechen"
+      />
+
+      <ConfirmModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        onConfirm={handleDeleteNotebook}
+        title="Notizbuch löschen?"
+        message={`Möchtest du das Notizbuch "${showDeleteModal?.title}" wirklich löschen? Alle enthaltenen Seiten werden ebenfalls gelöscht.`}
+        confirmText="Löschen"
+        cancelText="Abbrechen"
+        type="danger"
+      />
     </aside>
   );
 }

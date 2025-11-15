@@ -5,6 +5,9 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+import Link from '@tiptap/extension-link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical, faTimes, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,7 +21,8 @@ const TextBoxElement = React.memo(({
   onUpdate, 
   onDelete,
   onBringToFront,
-  onFocused
+  onFocused,
+  onEditorReady
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -35,19 +39,27 @@ const TextBoxElement = React.memo(({
     }
     updateTimeoutRef.current = setTimeout(() => {
       onUpdate(element.id, content);
-    }, 500); // Save after 500ms of no typing
+    }, 1000); // Save after 1s of no typing (increased from 500ms)
   }, [element.id, onUpdate]);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         history: {
-          depth: 10,
+          depth: 20, // Increased history depth
         },
       }),
       Underline,
+      Subscript,
+      Superscript,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Highlight.configure({ multicolor: true }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'editor-link',
+        },
+      }),
       Placeholder.configure({
         placeholder: 'Text eingeben...',
       }),
@@ -64,12 +76,18 @@ const TextBoxElement = React.memo(({
     },
     // Don't auto-focus to prevent jumping
     autofocus: false,
+    // Performance optimization
+    editable: true,
+    injectCSS: false, // Don't inject inline CSS
   });
 
   // Only update editor content when element changes from external source
   useEffect(() => {
     if (editor && !editor.isFocused && element.content !== editor.getHTML()) {
-      editor.commands.setContent(element.content || '', false);
+      // Use queueMicrotask for better performance
+      queueMicrotask(() => {
+        editor.commands.setContent(element.content || '', false);
+      });
     }
   }, [element.content, editor]);
 
@@ -82,6 +100,26 @@ const TextBoxElement = React.memo(({
       }, 100);
     }
   }, [editor, isNew, onFocused]);
+
+  // Notify parent when editor is ready and focused
+  useEffect(() => {
+    if (editor && onEditorReady) {
+      const handleFocus = () => {
+        onEditorReady(editor);
+      };
+      const handleBlur = () => {
+        onEditorReady(null);
+      };
+      
+      editor.on('focus', handleFocus);
+      editor.on('blur', handleBlur);
+      
+      return () => {
+        editor.off('focus', handleFocus);
+        editor.off('blur', handleBlur);
+      };
+    }
+  }, [editor, onEditorReady]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -125,9 +163,8 @@ const TextBoxElement = React.memo(({
     const newX = e.clientX - rect.left - dragStart.x;
     const newY = e.clientY - rect.top - dragStart.y;
     
-    requestAnimationFrame(() => {
-      onMove(element.id, Math.max(0, newX), Math.max(0, newY));
-    });
+    // Direct update without requestAnimationFrame for lower latency
+    onMove(element.id, Math.max(0, newX), Math.max(0, newY));
   }, [isDragging, dragStart.x, dragStart.y, element.id, onMove]);
 
   const handleMouseUpDrag = useCallback(() => {
@@ -158,9 +195,8 @@ const TextBoxElement = React.memo(({
     const newWidth = Math.max(150, resizeStart.width + deltaX);
     const newHeight = Math.max(50, resizeStart.height + deltaY);
     
-    requestAnimationFrame(() => {
-      onResize(element.id, newWidth, newHeight);
-    });
+    // Direct update without requestAnimationFrame for lower latency
+    onResize(element.id, newWidth, newHeight);
   }, [isResizing, resizeStart, element.id, onResize]);
 
   const handleMouseUpResize = useCallback(() => {
@@ -193,7 +229,7 @@ const TextBoxElement = React.memo(({
   return (
     <div
       ref={elementRef}
-      className={`canvas-element canvas-element--text ${isSelected ? 'canvas-element--selected' : ''}`}
+      className={`canvas-element canvas-element--text ${isSelected ? 'canvas-element--selected' : ''} ${editor?.isFocused ? 'canvas-element--editing' : ''}`}
       style={{
         position: 'absolute',
         left: element.positionX,
@@ -201,13 +237,17 @@ const TextBoxElement = React.memo(({
         width: element.width,
         height: element.height,
         zIndex: element.zIndex || 0,
-        cursor: isDragging ? 'grabbing' : 'default',
+        cursor: isDragging ? 'grabbing' : 'text',
         userSelect: isDragging ? 'none' : 'auto'
       }}
       onClick={(e) => {
-        // Only select if not clicking inside the editor
-        if (!e.target.closest('.ProseMirror')) {
+        // Click directly into editor for better OneNote-like behavior
+        if (!isDragging && !isResizing) {
           e.stopPropagation();
+          // Auto-focus editor when clicking anywhere on the textbox
+          if (editor && !editor.isFocused) {
+            editor.commands.focus();
+          }
           onSelect();
         }
       }}

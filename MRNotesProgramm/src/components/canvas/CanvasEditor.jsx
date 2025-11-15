@@ -4,7 +4,7 @@ import TextBoxElement from './elements/TextBoxElement';
 import ImageElement from './elements/ImageElement';
 import FileElement from './elements/FileElement';
 
-const CanvasEditor = ({ pageId }) => {
+const CanvasEditor = ({ pageId, onEditorFocus }) => {
   const [elements, setElements] = useState([]);
   const [selectedElement, setSelectedElement] = useState(null);
   const [pendingCursor, setPendingCursor] = useState(null); // { x, y } for blinking cursor
@@ -116,7 +116,13 @@ const CanvasEditor = ({ pageId }) => {
 
   // Update element position
   const handleElementMove = async (elementId, newX, newY) => {
-    await db.pageElements.update(elementId, {
+    // Optimistic update - update state immediately
+    setElements(prev => prev.map(el => 
+      el.id === elementId ? { ...el, positionX: newX, positionY: newY } : el
+    ));
+    
+    // Update database asynchronously
+    db.pageElements.update(elementId, {
       positionX: newX,
       positionY: newY,
       updatedAt: new Date()
@@ -138,17 +144,17 @@ const CanvasEditor = ({ pageId }) => {
 
   // Update element size
   const handleElementResize = async (elementId, newWidth, newHeight) => {
-    await db.pageElements.update(elementId, {
+    // Optimistic update - update state immediately
+    setElements(prev => prev.map(el => 
+      el.id === elementId ? { ...el, width: newWidth, height: newHeight } : el
+    ));
+    
+    // Update database asynchronously
+    db.pageElements.update(elementId, {
       width: newWidth,
       height: newHeight,
       updatedAt: new Date()
     });
-
-    setElements(elements.map(el => 
-      el.id === elementId 
-        ? { ...el, width: newWidth, height: newHeight }
-        : el
-    ));
   };
 
   // Update element content
@@ -204,6 +210,7 @@ const CanvasEditor = ({ pageId }) => {
             onDelete={handleElementDelete}
             onBringToFront={bringToFront}
             onFocused={() => setNewElementId(null)}
+            onEditorReady={onEditorFocus}
           />
         );
       case 'image':

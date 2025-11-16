@@ -11,6 +11,14 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
   const [newElementId, setNewElementId] = useState(null); // Track newly created element for auto-focus
   const canvasRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({ width: 3000, height: 3000 });
+  
+  // Grid snapping configuration
+  const GRID_SIZE = 20; // Must match background grid size
+  
+  // Snap to grid function
+  const snapToGrid = (value) => {
+    return Math.round(value / GRID_SIZE) * GRID_SIZE;
+  };
 
   // Load elements from database
   useEffect(() => {
@@ -115,28 +123,26 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
   }, [pendingCursor]);
 
   // Update element position
-  const handleElementMove = async (elementId, newX, newY) => {
+  const handleElementMove = async (elementId, newX, newY, skipSnap = false) => {
+    // Apply grid snapping unless skipSnap is true
+    const finalX = skipSnap ? newX : snapToGrid(newX);
+    const finalY = skipSnap ? newY : snapToGrid(newY);
+    
     // Optimistic update - update state immediately
     setElements(prev => prev.map(el => 
-      el.id === elementId ? { ...el, positionX: newX, positionY: newY } : el
+      el.id === elementId ? { ...el, positionX: finalX, positionY: finalY } : el
     ));
     
     // Update database asynchronously
     db.pageElements.update(elementId, {
-      positionX: newX,
-      positionY: newY,
+      positionX: finalX,
+      positionY: finalY,
       updatedAt: new Date()
     });
 
-    setElements(elements.map(el => 
-      el.id === elementId 
-        ? { ...el, positionX: newX, positionY: newY }
-        : el
-    ));
-
     // Auto-expand canvas if needed
-    const newWidth = Math.max(canvasSize.width, newX + 500);
-    const newHeight = Math.max(canvasSize.height, newY + 500);
+    const newWidth = Math.max(canvasSize.width, finalX + 500);
+    const newHeight = Math.max(canvasSize.height, finalY + 500);
     if (newWidth > canvasSize.width || newHeight > canvasSize.height) {
       setCanvasSize({ width: newWidth, height: newHeight });
     }
@@ -211,6 +217,7 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
             onBringToFront={bringToFront}
             onFocused={() => setNewElementId(null)}
             onEditorReady={onEditorFocus}
+            gridSize={GRID_SIZE}
           />
         );
       case 'image':
@@ -224,6 +231,7 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
             onResize={handleElementResize}
             onDelete={handleElementDelete}
             onBringToFront={bringToFront}
+            gridSize={GRID_SIZE}
           />
         );
       case 'file':
@@ -236,6 +244,7 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
             onMove={handleElementMove}
             onDelete={handleElementDelete}
             onBringToFront={bringToFront}
+            gridSize={GRID_SIZE}
           />
         );
       default:
@@ -263,7 +272,8 @@ const CanvasEditor = ({ pageId, onEditorFocus }) => {
           height: canvasSize.height,
           position: 'relative',
           backgroundImage: 'radial-gradient(circle, #ddd 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
+          backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+          backgroundPosition: '-0.5px -0.5px' // Align dots exactly to grid points (0, 20, 40, etc.)
         }}
       >
         {elements

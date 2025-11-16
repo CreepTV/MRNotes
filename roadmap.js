@@ -112,7 +112,7 @@ function initDragScroll() {
     let startX;
     let scrollLeft;
 
-    boardContainer.addEventListener('mousedown', (e) => {
+    const handleMouseDown = (e) => {
         // Don't drag if clicking on a card or input
         if (e.target.closest('.card') || e.target.closest('input') || e.target.closest('label')) {
             return;
@@ -122,25 +122,49 @@ function initDragScroll() {
         boardContainer.classList.add('grabbing');
         startX = e.pageX - boardContainer.offsetLeft;
         scrollLeft = boardContainer.scrollLeft;
-    });
+    };
 
-    boardContainer.addEventListener('mouseleave', () => {
+    const handleMouseLeave = () => {
         isDown = false;
         boardContainer.classList.remove('grabbing');
-    });
+    };
 
-    boardContainer.addEventListener('mouseup', () => {
+    const handleMouseUp = () => {
         isDown = false;
         boardContainer.classList.remove('grabbing');
-    });
+    };
 
-    boardContainer.addEventListener('mousemove', (e) => {
+    const handleMouseMove = (e) => {
         if (!isDown) return;
         e.preventDefault();
         const x = e.pageX - boardContainer.offsetLeft;
         const walk = (x - startX) * 2; // Scroll speed multiplier
         boardContainer.scrollLeft = scrollLeft - walk;
+    };
+
+    boardContainer.addEventListener('mousedown', handleMouseDown);
+    boardContainer.addEventListener('mouseleave', handleMouseLeave);
+    boardContainer.addEventListener('mouseup', handleMouseUp);
+    boardContainer.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    // Cleanup function for when page unloads or visibility changes
+    const cleanup = () => {
+        boardContainer.removeEventListener('mousedown', handleMouseDown);
+        boardContainer.removeEventListener('mouseleave', handleMouseLeave);
+        boardContainer.removeEventListener('mouseup', handleMouseUp);
+        boardContainer.removeEventListener('mousemove', handleMouseMove, { passive: true });
+    };
+
+    // Cleanup on visibility change (tab switching)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            isDown = false;
+            boardContainer.classList.remove('grabbing');
+        }
     });
+
+    // Store cleanup function for potential later use
+    window.__cleanupDragScroll = cleanup;
 }
 
 // Add keyboard shortcuts

@@ -9,13 +9,16 @@ const ImageElement = ({
   onMove, 
   onResize, 
   onDelete,
-  onBringToFront 
+  onBringToFront,
+  gridSize = 20
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); // Visual offset during drag
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
   const elementRef = useRef(null);
+  const dragRectRef = useRef(null);
 
   // Drag functionality
   const handleMouseDownDrag = (e) => {
@@ -28,6 +31,7 @@ const ImageElement = ({
     
     const canvasContent = elementRef.current.parentElement;
     const rect = canvasContent.getBoundingClientRect();
+    dragRectRef.current = rect;
     
     setDragStart({
       x: e.clientX - rect.left - element.positionX,
@@ -36,19 +40,32 @@ const ImageElement = ({
   };
 
   const handleMouseMoveDrag = (e) => {
-    if (!isDragging) return;
+    if (!isDragging || !dragRectRef.current) return;
     
-    const canvasContent = elementRef.current.parentElement;
-    const rect = canvasContent.getBoundingClientRect();
+    const rect = dragRectRef.current;
     
     const newX = e.clientX - rect.left - dragStart.x;
     const newY = e.clientY - rect.top - dragStart.y;
     
-    onMove(element.id, Math.max(0, newX), Math.max(0, newY));
+    // Only update visual offset, don't call onMove yet
+    setDragOffset({
+      x: Math.max(0, newX) - element.positionX,
+      y: Math.max(0, newY) - element.positionY
+    });
   };
 
-  const handleMouseUpDrag = () => {
+  const handleMouseUpDrag = (e) => {
+    if (isDragging && dragRectRef.current) {
+      // On mouse up, apply final position with snapping (unless Alt is held)
+      const skipSnap = e.altKey;
+      const rect = dragRectRef.current;
+      const newX = e.clientX - rect.left - dragStart.x;
+      const newY = e.clientY - rect.top - dragStart.y;
+      onMove(element.id, Math.max(0, newX), Math.max(0, newY), skipSnap);
+    }
     setIsDragging(false);
+    setDragOffset({ x: 0, y: 0 });
+    dragRectRef.current = null;
   };
 
   // Resize functionality
@@ -83,10 +100,10 @@ const ImageElement = ({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMoveDrag);
+      window.addEventListener('mousemove', handleMouseMoveDrag, { passive: true });
       window.addEventListener('mouseup', handleMouseUpDrag);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMoveDrag);
+        window.removeEventListener('mousemove', handleMouseMoveDrag, { passive: true });
         window.removeEventListener('mouseup', handleMouseUpDrag);
       };
     }
@@ -94,10 +111,10 @@ const ImageElement = ({
 
   useEffect(() => {
     if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMoveResize);
+      window.addEventListener('mousemove', handleMouseMoveResize, { passive: true });
       window.addEventListener('mouseup', handleMouseUpResize);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMoveResize);
+        window.removeEventListener('mousemove', handleMouseMoveResize, { passive: true });
         window.removeEventListener('mouseup', handleMouseUpResize);
       };
     }
@@ -114,7 +131,8 @@ const ImageElement = ({
         width: element.width,
         height: element.height,
         zIndex: element.zIndex || 0,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        cursor: isDragging ? 'grabbing' : 'grab',
+        transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none'
       }}
       onClick={(e) => {
         e.stopPropagation();

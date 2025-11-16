@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Interactive elements
     initInteractiveElements();
     
+    // Dynamic favicon for dark/light mode
+    initDynamicFavicon();
+    
     console.log('🏠 MRNotes Homepage loaded successfully!');
 });
 
@@ -223,6 +226,26 @@ function revealOnScroll() {
 
 // Additional scroll listener for manual reveal checking
 window.addEventListener('scroll', revealOnScroll);
+
+// Dynamic favicon based on color scheme
+function initDynamicFavicon() {
+    const updateFavicon = () => {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const favicon = document.querySelector('link[rel="icon"]');
+        
+        if (favicon) {
+            favicon.href = isDarkMode 
+                ? 'data/logo/MRNotes_Logo_Transparent.png'
+                : 'data/logo/Big_MRNotes_Logo_Blau_Transparent.png';
+        }
+    };
+    
+    // Initial update
+    updateFavicon();
+    
+    // Listen for color scheme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
+}
 
 // Export functions for potential external use
 window.MRNotes = {

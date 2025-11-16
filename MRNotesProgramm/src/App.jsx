@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { db } from './lib/db/database';
 import { useAppStore } from './lib/store/appStore';
 import Sidebar from './components/shared/Sidebar';
@@ -7,8 +7,41 @@ import Header from './components/shared/Header';
 import NotebookView from './components/notebooks/NotebookView';
 import PageEditor from './components/pages/PageEditor';
 
+function AppContent({ selectedSectionId, setSelectedSectionId }) {
+  const { sectionId } = useParams();
+
+  // Sync selectedSectionId with URL
+  useEffect(() => {
+    if (sectionId) {
+      setSelectedSectionId(parseInt(sectionId));
+    }
+  }, [sectionId, setSelectedSectionId]);
+
+  return (
+    <>
+      <Sidebar 
+        onSectionSelect={setSelectedSectionId}
+        selectedSectionId={selectedSectionId}
+      />
+      <div className="app-content">
+        <Header />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Navigate to="/notebooks" replace />} />
+            <Route path="/notebooks" element={<NotebookView />} />
+            <Route path="/notebooks/:notebookId" element={<NotebookView />} />
+            <Route path="/notebooks/:notebookId/sections/:sectionId" element={<NotebookView />} />
+            <Route path="/pages/:pageId" element={<PageEditor />} />
+          </Routes>
+        </main>
+      </div>
+    </>
+  );
+}
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSectionId, setSelectedSectionId] = useState(null);
   const { sidebarOpen, theme } = useAppStore();
 
   useEffect(() => {
@@ -70,19 +103,10 @@ function App() {
   return (
     <Router>
       <div className="app-layout" data-theme={theme}>
-        <Sidebar />
-        <div className="app-content">
-          <Header />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Navigate to="/notebooks" replace />} />
-              <Route path="/notebooks" element={<NotebookView />} />
-              <Route path="/notebooks/:notebookId" element={<NotebookView />} />
-              <Route path="/notebooks/:notebookId/sections/:sectionId" element={<NotebookView />} />
-              <Route path="/pages/:pageId" element={<PageEditor />} />
-            </Routes>
-          </main>
-        </div>
+        <AppContent 
+          selectedSectionId={selectedSectionId}
+          setSelectedSectionId={setSelectedSectionId}
+        />
       </div>
     </Router>
   );

@@ -22,11 +22,13 @@ const TextBoxElement = React.memo(({
   onDelete,
   onBringToFront,
   onFocused,
-  onEditorReady
+  onEditorReady,
+  gridSize = 20
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); // Visual offset during drag
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
   const elementRef = useRef(null);
   const dragRectRef = useRef(null);
@@ -163,14 +165,26 @@ const TextBoxElement = React.memo(({
     const newX = e.clientX - rect.left - dragStart.x;
     const newY = e.clientY - rect.top - dragStart.y;
     
-    // Direct update without requestAnimationFrame for lower latency
-    onMove(element.id, Math.max(0, newX), Math.max(0, newY));
-  }, [isDragging, dragStart.x, dragStart.y, element.id, onMove]);
+    // Only update visual offset, don't call onMove yet
+    setDragOffset({
+      x: Math.max(0, newX) - element.positionX,
+      y: Math.max(0, newY) - element.positionY
+    });
+  }, [isDragging, dragStart.x, dragStart.y, element.positionX, element.positionY]);
 
-  const handleMouseUpDrag = useCallback(() => {
+  const handleMouseUpDrag = useCallback((e) => {
+    if (isDragging && dragRectRef.current) {
+      // On mouse up, apply final position with snapping (unless Alt is held)
+      const skipSnap = e.altKey;
+      const rect = dragRectRef.current;
+      const newX = e.clientX - rect.left - dragStart.x;
+      const newY = e.clientY - rect.top - dragStart.y;
+      onMove(element.id, Math.max(0, newX), Math.max(0, newY), skipSnap);
+    }
     setIsDragging(false);
+    setDragOffset({ x: 0, y: 0 });
     dragRectRef.current = null;
-  }, []);
+  }, [isDragging, dragStart.x, dragStart.y, element.id, onMove]);
 
   // Resize functionality with performance optimization
   const handleMouseDownResize = useCallback((e) => {
@@ -206,10 +220,10 @@ const TextBoxElement = React.memo(({
   // Global mouse events
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMoveDrag);
+      window.addEventListener('mousemove', handleMouseMoveDrag, { passive: true });
       window.addEventListener('mouseup', handleMouseUpDrag);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMoveDrag);
+        window.removeEventListener('mousemove', handleMouseMoveDrag, { passive: true });
         window.removeEventListener('mouseup', handleMouseUpDrag);
       };
     }
@@ -217,10 +231,10 @@ const TextBoxElement = React.memo(({
 
   useEffect(() => {
     if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMoveResize);
+      window.addEventListener('mousemove', handleMouseMoveResize, { passive: true });
       window.addEventListener('mouseup', handleMouseUpResize);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMoveResize);
+        window.removeEventListener('mousemove', handleMouseMoveResize, { passive: true });
         window.removeEventListener('mouseup', handleMouseUpResize);
       };
     }
@@ -238,7 +252,8 @@ const TextBoxElement = React.memo(({
         height: element.height,
         zIndex: element.zIndex || 0,
         cursor: isDragging ? 'grabbing' : 'text',
-        userSelect: isDragging ? 'none' : 'auto'
+        userSelect: isDragging ? 'none' : 'auto',
+        transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none'
       }}
       onClick={(e) => {
         // Click directly into editor for better OneNote-like behavior

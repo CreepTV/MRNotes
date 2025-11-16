@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook, faPlus, faTrash, faEdit, faEllipsisV, faPalette } from '@fortawesome/free-solid-svg-icons';
 import InputModal from '../shared/InputModal';
 import ConfirmModal from '../shared/ConfirmModal';
+import ColorPickerModal from '../shared/ColorPickerModal';
 
 export default function NotebookList() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function NotebookList() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showColorPicker, setShowColorPicker] = useState(null);
   
   const notebooks = useLiveQuery(() => 
     db.notebooks.filter(notebook => !notebook.deletedAt).toArray()
@@ -67,12 +69,18 @@ export default function NotebookList() {
 
   const handleChangeColor = async (e, notebook) => {
     e.stopPropagation();
-    const newColor = colors[Math.floor(Math.random() * colors.length)];
-    await db.notebooks.update(notebook.id, {
-      color: newColor,
-      updatedAt: new Date()
-    });
+    setShowColorPicker(notebook);
     setShowContextMenu(null);
+  };
+
+  const handleColorSelected = async (color) => {
+    if (showColorPicker) {
+      await db.notebooks.update(showColorPicker.id, {
+        color,
+        updatedAt: new Date()
+      });
+      setShowColorPicker(null);
+    }
   };
 
   return (
@@ -199,6 +207,14 @@ export default function NotebookList() {
         confirmText="Löschen"
         cancelText="Abbrechen"
         type="danger"
+      />
+
+      <ColorPickerModal
+        isOpen={!!showColorPicker}
+        onClose={() => setShowColorPicker(null)}
+        onColorSelect={handleColorSelected}
+        currentColor={showColorPicker?.color || '#2563eb'}
+        title="Notizbuch Farbe wählen"
       />
     </div>
   );

@@ -3,58 +3,48 @@ import { useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db/database';
 import NotebookList from './NotebookList';
-import SectionList from '../sections/SectionList';
 import PageList from '../pages/PageList';
 
 export default function NotebookView() {
   const { notebookId, sectionId } = useParams();
-  const [selectedSection, setSelectedSection] = useState(null);
 
   const notebook = useLiveQuery(
     () => notebookId ? db.notebooks.get(parseInt(notebookId)) : null,
     [notebookId]
   );
 
-  const sections = useLiveQuery(
-    () => notebookId ? db.sections.where('notebookId').equals(parseInt(notebookId)).toArray() : [],
-    [notebookId]
-  );
-
   const pages = useLiveQuery(
     () => {
-      const secId = parseInt(sectionId || selectedSection);
+      const secId = parseInt(sectionId);
       return secId ? db.pages.where('sectionId').equals(secId).toArray() : [];
     },
-    [sectionId, selectedSection]
+    [sectionId]
   );
-
-  // Update selected section when URL parameter changes
-  useEffect(() => {
-    if (sectionId) {
-      setSelectedSection(parseInt(sectionId));
-    }
-  }, [sectionId]);
 
   if (!notebookId) {
     return <NotebookList />;
   }
 
+  // If we have a sectionId, show the pages for that section
+  if (sectionId) {
+    return (
+      <div className="notebook-view">
+        <div className="notebook-view__pages">
+          <PageList
+            sectionId={parseInt(sectionId)}
+            pages={pages || []}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Otherwise show the notebook overview
   return (
     <div className="notebook-view">
-      <div className="notebook-view__sections">
-        <SectionList
-          notebookId={parseInt(notebookId)}
-          sections={sections || []}
-          selectedSection={selectedSection || parseInt(sectionId)}
-          onSelectSection={setSelectedSection}
-        />
-      </div>
-
-      <div className="notebook-view__pages">
-        <PageList
-          sectionId={parseInt(sectionId || selectedSection)}
-          pages={pages || []}
-        />
+      <div className="notebook-view__content">
+        <h1>{notebook?.title || 'Notizbuch'}</h1>
+        <p className="text-secondary">Wähle eine Section aus der Sidebar, um Seiten anzuzeigen.</p>
       </div>
     </div>
   );

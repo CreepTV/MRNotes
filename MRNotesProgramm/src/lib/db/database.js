@@ -19,5 +19,15 @@ db.version(1).stores({
   settings: 'key' // Key-Value Store for app settings
 });
 
+// Version 2: Add color field to notebooks (non-indexed, just stored)
+db.version(2).stores({
+  notebooks: '++id, title, createdAt, updatedAt, deletedAt, color'
+});
+
+// Version 3: Add orderIndex to notebooks
+db.version(3).stores({
+  notebooks: '++id, title, orderIndex, createdAt, updatedAt, deletedAt, color'
+});
+
 // Export for use in components
 export default db;

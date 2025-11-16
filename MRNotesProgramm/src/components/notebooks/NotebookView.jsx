@@ -43,6 +43,13 @@ export default function NotebookView() {
   return (
     <div className="notebook-view">
       <div className="notebook-view__content">
+        <div className="notebook-view__logo">
+          <img 
+            src="/data/logo/MRNotes_Logo_Blau_Transparent.png"
+            alt="MRNotes Logo" 
+            className="notebook-view__logo-img" 
+          />
+        </div>
         <h1>{notebook?.title || 'Notizbuch'}</h1>
         <p className="text-secondary">Wähle eine Section aus der Sidebar, um Seiten anzuzeigen.</p>
       </div>

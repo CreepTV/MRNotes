@@ -919,6 +919,37 @@ body {
   min-width: 0;
 }
 
+.notebook-view__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.notebook-view__logo {
+  margin-bottom: var(--space-lg);
+}
+
+.notebook-view__logo-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.notebook-view__content h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.notebook-view__content .text-secondary {
+  color: var(--gray-600);
+}
+
 /* ========================================
    Sections
    ======================================== */
@@ -2298,6 +2329,10 @@ body:has(.sidebar--closed) .rich-toolbar {
 [data-theme="dark"] .notebook-view__sections {
   background: var(--bg-light);
   border-right-color: var(--border);
+}
+
+[data-theme="dark"] .notebook-view__content .text-secondary {
+  color: var(--gray-400);
 }
 
 [data-theme="dark"] .section-list__header {

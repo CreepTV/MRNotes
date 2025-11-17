@@ -1,19 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../lib/db/database';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faPlus, faStar, faTrash, faEdit, faEllipsisV, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt, faPlus, faStar, faTrash, faEdit, faEllipsisV, faClock, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import InputModal from '../shared/InputModal';
 import ConfirmModal from '../shared/ConfirmModal';
 import AlertModal from '../shared/AlertModal';
 
-export default function PageList({ sectionId, pages }) {
+export default function PageList({ sectionId, pages, isOpen, onToggle }) {
   const navigate = useNavigate();
   const [showContextMenu, setShowContextMenu] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [showAlertModal, setShowAlertModal] = useState(false);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showContextMenu && !event.target.closest('.context-menu') && !event.target.closest('.btn--icon')) {
+        setShowContextMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showContextMenu]);
 
   const handleCreate = async (title) => {
     if (!sectionId) {
@@ -75,10 +89,19 @@ export default function PageList({ sectionId, pages }) {
   return (
     <div className="page-list">
       <div className="page-list__header">
-        <h2><FontAwesomeIcon icon={faFileAlt} /> Pages</h2>
-        <button className="btn btn--primary btn--sm" onClick={() => setShowCreateModal(true)}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            className="btn btn--ghost btn--icon btn--sm"
+            onClick={onToggle}
+            title={isOpen ? 'Sidebar schließen' : 'Sidebar öffnen'}
+          >
+            <FontAwesomeIcon icon={isOpen ? faChevronLeft : faChevronRight} />
+          </button>
+          <h2><FontAwesomeIcon icon={faFileAlt} /> Pages</h2>
+        </div>
+        <button className="btn btn--primary btn--sm page-list__create-btn" onClick={() => setShowCreateModal(true)}>
           <FontAwesomeIcon icon={faPlus} />
-          New Page
+          <span className="page-list__create-btn-text">New Page</span>
         </button>
       </div>
 

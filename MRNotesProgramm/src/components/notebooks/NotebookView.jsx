@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db/database';
 import NotebookList from './NotebookList';
-import PageList from '../pages/PageList';
 
 export default function NotebookView() {
   const { notebookId, sectionId } = useParams();
@@ -13,33 +12,11 @@ export default function NotebookView() {
     [notebookId]
   );
 
-  const pages = useLiveQuery(
-    () => {
-      const secId = parseInt(sectionId);
-      return secId ? db.pages.where('sectionId').equals(secId).toArray() : [];
-    },
-    [sectionId]
-  );
-
   if (!notebookId) {
     return <NotebookList />;
   }
 
-  // If we have a sectionId, show the pages for that section
-  if (sectionId) {
-    return (
-      <div className="notebook-view">
-        <div className="notebook-view__pages">
-          <PageList
-            sectionId={parseInt(sectionId)}
-            pages={pages || []}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Otherwise show the notebook overview
+  // Show notebook overview
   return (
     <div className="notebook-view">
       <div className="notebook-view__content">

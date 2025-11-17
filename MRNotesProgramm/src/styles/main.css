@@ -110,16 +110,186 @@ body {
   display: flex;
   flex-direction: column;
   margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
+  margin-top: var(--header-height);
+  transition: none;
+  height: calc(100vh - var(--header-height));
 }
 
+.app-content[data-has-pages-sidebar="true"] {
+  margin-left: calc(var(--sidebar-width) + 320px);
+}
+
+.sidebar--closed ~ .header ~ .app-content,
 .sidebar--closed ~ .app-content {
   margin-left: var(--sidebar-closed);
+}
+
+.sidebar--closed ~ .pages-sidebar ~ .app-content[data-has-pages-sidebar="true"],
+.sidebar--closed ~ .header ~ .pages-sidebar ~ .app-content[data-has-pages-sidebar="true"] {
+  margin-left: calc(var(--sidebar-closed) + 320px);
 }
 
 .main-content {
   flex: 1;
   overflow-y: auto;
+}
+
+/* Add padding when page editor toolbars are present */
+.page-editor .main-content {
+  padding-top: 0;
+}
+
+.page-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================
+   Pages Sidebar
+   ======================================== */
+
+.pages-sidebar {
+  width: 320px;
+  height: calc(100vh - var(--header-height) - 44px - 68px); /* header + page__header-minimal + rich-toolbar */
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+  position: fixed;
+  left: var(--sidebar-width);
+  top: calc(var(--header-height) + 56px + 68px); /* unter Header + Toolbars */
+  transition: none;
+  overflow: hidden;
+  z-index: 90;
+}
+
+/* Deaktiviere Transitions während des Resizings */
+body.is-resizing .pages-sidebar,
+body.is-resizing .app-content,
+body.is-resizing .header,
+body.is-resizing .page__header-minimal,
+body.is-resizing .rich-toolbar {
+  transition: none !important;
+}
+
+/* Verhindere Textauswahl während des Resizings */
+body.is-resizing {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: ew-resize !important;
+}
+
+body.is-resizing * {
+  cursor: ew-resize !important;
+}
+
+.pages-sidebar__toggle {
+  position: fixed;
+  left: var(--sidebar-width);
+  top: calc(var(--header-height) + 56px + 68px);
+  width: 24px;
+  height: 48px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 91;
+  transition: none;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.pages-sidebar__toggle:hover {
+  background: var(--gray-50);
+}
+
+.pages-sidebar__toggle[data-open="true"] {
+  display: none;
+}
+
+.pages-sidebar__toggle[data-has-page-editor="false"] {
+  top: var(--header-height);
+}
+
+.sidebar--closed ~ .pages-sidebar__toggle {
+  left: var(--sidebar-closed);
+}
+
+.pages-sidebar[data-open="true"] {
+  overflow-y: auto;
+}
+
+.pages-sidebar[data-open="false"] {
+  width: 0 !important;
+  border-right: none;
+}
+
+.pages-sidebar__resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize;
+  background: transparent;
+  transition: background 0.2s ease;
+  z-index: 100;
+}
+
+.pages-sidebar__resize-handle:hover {
+  background: var(--primary);
+}
+
+.pages-sidebar__resize-handle:active {
+  background: var(--primary-hover);
+}
+
+/* Wenn keine Seite geöffnet ist, bis zum Header ausstrecken */
+.pages-sidebar[data-has-page-editor="false"] {
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+}
+
+.sidebar--closed ~ .pages-sidebar,
+.sidebar--closed ~ .header ~ .pages-sidebar {
+  left: var(--sidebar-closed);
+}
+
+.pages-sidebar .page-list {
+  height: 100%;
+  padding: var(--space-md);
+}
+
+.pages-sidebar .page-list__header {
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 10;
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* Verstecke Button-Text bei schmaler Sidebar */
+.page-list__create-btn-text {
+  margin-left: 6px;
+}
+
+.pages-sidebar[style*="width: 250px"] .page-list__create-btn-text,
+.pages-sidebar[style*="width: 24"] .page-list__create-btn-text,
+.pages-sidebar[style*="width: 23"] .page-list__create-btn-text,
+.pages-sidebar[style*="width: 22"] .page-list__create-btn-text,
+.pages-sidebar[style*="width: 21"] .page-list__create-btn-text,
+.pages-sidebar[style*="width: 20"] .page-list__create-btn-text {
+  display: none;
+}
+
+.page-list__create-btn {
+  transition: padding 0.2s ease;
 }
 
 /* ========================================
@@ -136,7 +306,7 @@ body {
   position: fixed;
   left: 0;
   top: 0;
-  transition: width 0.3s ease;
+  transition: none;
   overflow: hidden;
   z-index: 100;
 }
@@ -144,6 +314,26 @@ body {
 .sidebar--closed {
   width: var(--sidebar-closed);
 }
+
+/* Left sidebar resize handle */
+.sidebar__resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 120;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.sidebar__resize-handle:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+/* During resizing disable transitions and text selection (existing body.is-resizing rules will apply)
+   Ensure layout updates are immediate for smooth UX */
 
 /* Sidebar Header */
 .sidebar__header {
@@ -208,6 +398,9 @@ body {
 .sidebar__actions {
   padding: var(--space-md);
   border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
 /* Sidebar Navigation */
@@ -224,8 +417,7 @@ body {
   color: var(--gray-500);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: var(--space-md) var(--space-md) var(--space-xs);
-  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-md) var(--space-xs);
 }
 
 .sidebar__nav-item {
@@ -335,6 +527,11 @@ body {
   width: 100%;
 }
 
+/* Blockiere Drag auf anderen Notebooks wenn ein Menü offen ist */
+.sidebar__nav:has(.sidebar__menu-dropdown) .sidebar__notebook:not(:has(.sidebar__menu-dropdown)) {
+  pointer-events: none;
+}
+
 .sidebar__notebook-main {
   flex: 1;
   display: flex;
@@ -440,16 +637,14 @@ body {
 }
 
 .sidebar__menu-dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
+  position: fixed;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   min-width: 150px;
-  z-index: 1000;
-  margin-top: var(--space-xs);
+  z-index: 10000;
+  pointer-events: auto;
 }
 
 .sidebar__menu-item {
@@ -521,8 +716,16 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: 95;
+  transition: none;
+}
+
+.sidebar--closed ~ .header {
+  left: var(--sidebar-closed);
 }
 
 .header__content {
@@ -1065,14 +1268,15 @@ body {
 .page__item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
+  gap: 6px;
+  padding: 6px 8px;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  min-width: 0;
 }
 
 .page__item:hover {
@@ -1083,7 +1287,7 @@ body {
 
 .page__item-icon {
   color: var(--gray-500);
-  font-size: 16px;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
@@ -1092,28 +1296,31 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 2px;
 }
 
 .page__item-title {
   font-weight: 500;
   color: var(--gray-900);
+  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .page__item-date {
-  font-size: var(--font-sm);
+  font-size: 11px;
   color: var(--gray-500);
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: 2px;
+  line-height: 1.1;
 }
 
 .page__item-actions {
   display: flex;
-  gap: var(--space-xs);
+  gap: 2px;
   position: relative;
 }
 
@@ -1160,101 +1367,82 @@ body {
 /* Minimaler Header - jetzt mit Titel */
 .page__header-minimal {
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   left: var(--sidebar-width);
   right: 0;
-  z-index: 800;
+  z-index: 98;
   background: rgba(255, 255, 255, 0.98);
   border-bottom: 1px solid var(--gray-200);
-  padding: var(--space-sm) var(--space-xl);
+  padding: 0 var(--space-lg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: left 0.3s ease;
+  transition: none;
+  height: 50px;
+  display: flex;
+  align-items: center;
 }
 
-/* Adjust header when sidebar is closed */
-.sidebar--closed ~ * .page__header-minimal,
-body:has(.sidebar--closed) .page__header-minimal {
+.sidebar--closed ~ .app-content .page__header-minimal {
   left: var(--sidebar-closed);
 }
 
 .page__header-minimal .page__header-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: var(--space-sm);
+  width: 100%;
+  height: 100%;
 }
 
 .page__header-title {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--gray-900);
-  padding: 4px 8px; /* Reduced padding */
-  border: 2px solid transparent; /* Invisible border to match input */
-  border-radius: 8px;
+  padding: 0;
+  margin: 0;
+  border: none;
   background: transparent;
   outline: none;
-  box-shadow: 0 0 0 4px transparent; /* Invisible shadow to prevent shift */
-  transition: opacity 0.2s ease;
-  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
-.page__header-title:hover {
-  opacity: 0.7; /* Subtle hover effect */
-}
-
-.page__header-title-input {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--gray-900);
-  padding: 4px 8px; /* Match reduced padding */
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  background: var(--white);
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
-  transition: all 0.2s ease;
-}
 
 /* Page Date */
 .page__header-date {
-  font-size: 12px; /* Slightly larger */
+  font-size: 12px;
   font-weight: 400;
   color: var(--gray-500);
   cursor: pointer;
-  padding: 2px 8px; /* Reduced padding to match title */
-  border: 1px solid transparent; /* Invisible border to match input */
-  border-radius: 4px;
+  padding: 0;
+  margin-top: -2px;
+  border: none;
   background: transparent;
   outline: none;
-  box-shadow: 0 0 0 2px transparent; /* Invisible shadow to prevent shift */
-  transition: opacity 0.2s ease;
+  transition: color 0.2s ease;
   display: inline-block;
-  width: fit-content;
+  line-height: 1.4;
 }
 
 .page__header-date:hover {
-  opacity: 0.7; /* Subtle hover effect */
+  color: var(--gray-700);
 }
 
 .page__header-date-input {
-  font-size: 12px; /* Match date font size */
+  font-size: 12px;
   font-weight: 400;
   color: var(--gray-700);
-  padding: 2px 8px; /* Match reduced padding */
+  padding: 1px 2px;
   border: 1px solid var(--primary);
   border-radius: 4px;
   background: var(--white);
   outline: none;
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.08);
   transition: all 0.2s ease;
-  width: 100px; /* Slightly wider for 12px font */
+  width: 100px;
 }
 
 /* OneNote-Style Canvas */
@@ -1266,6 +1454,8 @@ body:has(.sidebar--closed) .page__header-minimal {
   left: 0;
   right: 0;
   bottom: 0;
+  padding-top: calc(44px + 68px); /* page__header-minimal + rich-toolbar */
+  box-sizing: border-box;
 }
 
 
@@ -1355,12 +1545,12 @@ body:has(.sidebar--closed) .page__header-minimal {
 
 .page__header-title-input {
   flex: 1;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--gray-900);
   border: 2px solid var(--primary);
   border-radius: var(--radius);
-  padding: var(--space-sm);
+  padding: 1px 4px;
   font-family: var(--font-family);
   outline: none;
 }
@@ -1472,29 +1662,27 @@ body:has(.sidebar--closed) .page__header-minimal {
 
 .rich-toolbar {
   position: fixed;
-  top: 88px; /* Below page header with title + date (16px + title + date + 16px padding) */
+  top: calc(var(--header-height) + 50px); /* direkt am unteren Rand von page__header-minimal */
   left: var(--sidebar-width);
   right: 0;
-  z-index: 900;
+  z-index: 99; /* über page__header-minimal (98) */
   display: flex;
-  flex-wrap: nowrap; /* Toolbar itself doesn't wrap */
-  align-items: flex-start; /* Align to top for multi-row groups */
-  gap: 4px; /* Smaller gap between groups */
-  padding: 6px 12px; /* Reduced padding */
-  min-height: 68px; /* Reduced height for 2 rows (28px * 2 + gaps + padding) */
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 6px 12px;
+  min-height: 68px;
   background: rgba(255, 255, 255, 0.98);
   border-bottom: 1px solid var(--gray-200);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  overflow-x: auto; /* Horizontal scroll for toolbar */
+  overflow-x: auto;
   overflow-y: hidden;
-  transition: left 0.3s ease;
+  transition: none;
 }
 
-/* Adjust toolbar when sidebar is closed */
-.sidebar--closed ~ * .rich-toolbar,
-body:has(.sidebar--closed) .rich-toolbar {
+.sidebar--closed ~ .app-content .rich-toolbar {
   left: var(--sidebar-closed);
 }
 
@@ -1565,12 +1753,10 @@ body:has(.sidebar--closed) .rich-toolbar {
 .rich-toolbar__btn--active {
   background: var(--primary);
   color: var(--white);
-  border-color: var(--primary);
 }
 
 .rich-toolbar__btn--active:hover {
   background: var(--primary-hover);
-  border-color: var(--primary-hover);
 }
 
 .rich-toolbar__btn:disabled {
@@ -1626,12 +1812,11 @@ body:has(.sidebar--closed) .rich-toolbar {
   padding: 10px 12px;
   border: none;
   background: transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
   color: var(--gray-700);
-  font-size: 14px;
+  cursor: pointer;
   text-align: left;
+  font-size: var(--font-base);
+  transition: all 0.15s ease;
 }
 
 .rich-toolbar__dropdown-item:hover {
@@ -3248,7 +3433,6 @@ body:has(.sidebar--closed) .rich-toolbar {
   display: block;
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: var(--space-md);
   font-size: 14px;
   letter-spacing: -0.01em;
 }
@@ -3671,14 +3855,7 @@ body:has(.sidebar--closed) .rich-toolbar {
   opacity: 0.7;
 }
 
-.sidebar__section-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0;
-  margin: 0;
-}
+
 
 /* Drop Zones */
 .sidebar__drop-zone {

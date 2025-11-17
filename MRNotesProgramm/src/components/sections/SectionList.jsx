@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '../../lib/db/database';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolder, faPlus, faTrash, faEdit, faEllipsisV, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +11,20 @@ export default function SectionList({ notebookId, sections, selectedSection, onS
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showContextMenu && !event.target.closest('.context-menu') && !event.target.closest('.btn--icon')) {
+        setShowContextMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showContextMenu]);
 
   const handleCreate = async (title) => {
     if (title) {

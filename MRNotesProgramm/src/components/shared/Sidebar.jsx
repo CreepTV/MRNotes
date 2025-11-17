@@ -29,7 +29,17 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
   const navigate = useNavigate();
   const { notebookId } = useParams();
   const { sidebarOpen, setSidebarOpen, theme, toggleTheme } = useAppStore();
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mrnotes.sidebarWidth');
+      return saved ? parseInt(saved, 10) : 260;
+    } catch (e) {
+      return 260;
+    }
+  });
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
   const [showMenu, setShowMenu] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(null);
@@ -53,6 +63,60 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
   ) || [];
 
   const currentNotebookId = notebookId ? parseInt(notebookId) : null;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside menu dropdown
+      if (showMenu && !event.target.closest('.sidebar__menu-dropdown') && !event.target.closest('.sidebar__notebook-menu')) {
+        setShowMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  // Apply saved sidebar width to CSS variable
+  useEffect(() => {
+    try {
+      document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
+      localStorage.setItem('mrnotes.sidebarWidth', String(sidebarWidth));
+    } catch (e) {}
+  }, [sidebarWidth]);
+
+  // Sidebar resize handlers
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizingSidebar) return;
+      const newWidth = e.clientX; // distance from left edge
+      const min = 180;
+      const max = 800;
+      if (newWidth >= min && newWidth <= max) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (!isResizingSidebar) return;
+      setIsResizingSidebar(false);
+      document.body.classList.remove('is-resizing');
+    };
+
+    if (isResizingSidebar) {
+      document.body.classList.add('is-resizing');
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.classList.remove('is-resizing');
+    };
+  }, [isResizingSidebar]);
 
   const handleCreateNotebook = async (title) => {
     if (title) {
@@ -120,6 +184,7 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
 
   const handleNotebookDragStart = (e, notebook) => {
     setDraggedNotebook(notebook);
+    setShowMenu(null);
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -157,6 +222,7 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
 
   const handleSectionDragStart = (e, section) => {
     setDraggedSection(section);
+    setShowMenu(null);
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -201,6 +267,14 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
 
   return (
     <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : 'sidebar--closed'}`}>
+      {/* Resize handle for the left sidebar */}
+      <div
+        className="sidebar__resize-handle"
+        onMouseDown={() => setIsResizingSidebar(true)}
+        role="separator"
+        aria-orientation="vertical"
+        title="Resize Sidebar"
+      />
       {/* Header */}
       <div className="sidebar__header">
         <div className="sidebar__logo">
@@ -223,6 +297,14 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
       {/* Quick Actions */}
       <div className="sidebar__actions">
         <button 
+          className="btn btn--secondary btn--block btn--compact"
+          onClick={() => navigate('/notebooks')}
+          title="Startseite"
+        >
+          <FontAwesomeIcon icon={faHome} />
+          {sidebarOpen && <span>Startseite</span>}
+        </button>
+        <button 
           className="btn btn--primary btn--block btn--compact"
           onClick={() => setShowCreateModal(true)}
           title="Neues Notizbuch"
@@ -244,8 +326,6 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
             <div 
               key={notebook.id}
               className={`sidebar__notebook ${currentNotebookId === notebook.id ? 'sidebar__notebook--active' : ''} ${isExpanded ? 'sidebar__notebook--expanded' : ''} ${dropTargetNotebook === notebook.id ? 'sidebar__notebook--drop-target' : ''}`}
-              draggable={sidebarOpen}
-              onDragStart={(e) => handleNotebookDragStart(e, notebook)}
               onDragOver={(e) => handleNotebookDragOver(e, notebook)}
               onDragLeave={handleNotebookDragLeave}
               onDrop={(e) => handleNotebookDrop(e, notebook)}
@@ -265,6 +345,8 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
                 )}
                 <button
                   className="sidebar__notebook-main"
+                  draggable={sidebarOpen}
+                  onDragStart={(e) => handleNotebookDragStart(e, notebook)}
                   onClick={() => {
                     navigate(`/notebooks/${notebook.id}`);
                     if (!sidebarOpen) {
@@ -284,9 +366,20 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
                 {sidebarOpen && (
                   <button
                     className="sidebar__notebook-menu"
+                    draggable="false"
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setShowMenu(showMenu === notebook.id ? null : notebook.id);
+                      if (showMenu === notebook.id) {
+                        setShowMenu(null);
+                      } else {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setMenuPosition({
+                          top: rect.bottom + 4,
+                          left: rect.right - 150
+                        });
+                        setShowMenu(notebook.id);
+                      }
                     }}
                     title="Aktionen"
                   >
@@ -294,7 +387,17 @@ export default function Sidebar({ onSectionSelect, selectedSectionId }) {
                   </button>
                 )}
                 {showMenu === notebook.id && (
-                  <div className="sidebar__menu-dropdown">
+                  <div 
+                    className="sidebar__menu-dropdown"
+                    style={{
+                      top: `${menuPosition.top}px`,
+                      left: `${menuPosition.left}px`
+                    }}
+                    draggable="false"
+                    onDragStart={(e) => e.preventDefault()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       className="sidebar__menu-item"
                       onClick={(e) => {

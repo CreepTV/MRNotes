@@ -178,7 +178,7 @@ export default function PageEditor() {
             </div>
           ) : (
             <div 
-              style={{ flex: 1, marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', cursor: 'pointer' }}
+              style={{ flex: 1, marginRight: 'auto', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
               onClick={() => setIsEditingTitle(true)}
               title="Klicken zum Bearbeiten"
             >

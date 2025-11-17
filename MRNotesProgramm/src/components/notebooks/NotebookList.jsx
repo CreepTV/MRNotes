@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db/database';
@@ -15,6 +15,20 @@ export default function NotebookList() {
   const [showEditModal, setShowEditModal] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(null);
+  
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showContextMenu && !event.target.closest('.context-menu') && !event.target.closest('.btn--icon')) {
+        setShowContextMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showContextMenu]);
   
   const notebooks = useLiveQuery(() => 
     db.notebooks.filter(notebook => !notebook.deletedAt).toArray()

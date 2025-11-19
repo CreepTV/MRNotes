@@ -758,6 +758,11 @@ body {
         text-align: center;
     }
 
+    .cta-text h2 {
+        justify-content: center;
+        font-size: 1.7em;
+    }
+
     .roadmap-stats {
         justify-content: center;
     }

@@ -537,7 +537,7 @@ body.is-resizing * {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-md);
   border: none;
   background: none;
   color: var(--gray-700);
@@ -720,7 +720,7 @@ body.is-resizing * {
   top: 0;
   left: var(--sidebar-width);
   right: 0;
-  z-index: 95;
+  z-index: 100;
   transition: none;
 }
 
